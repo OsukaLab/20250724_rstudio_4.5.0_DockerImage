@@ -1,0 +1,27 @@
+FROM lsbarr/20250724_rstudio_4.5.0:1.0.0
+
+# Install RStudio Server dependencies + setup Posit repository
+RUN apt-get update && apt-get install -y \
+    gdebi-core \
+    libclang-dev \
+    libssl-dev \
+    libpam0g-dev \
+    apt-transport-https \
+    software-properties-common \
+    wget && \
+    wget -qO- https://repos.rstudio.com/rstudio-pubkey.gpg | tee /etc/apt/trusted.gpg.d/rstudio.asc && \
+    add-apt-repository "deb https://repos.rstudio.com/posit/ubuntu jammy main"
+
+# Install RStudio Server (stable version)
+RUN apt-get update && apt-get install -y rstudio-server
+
+# Set password for existing rstudio user
+RUN echo "rstudio:rstudio" | chpasswd
+
+# Expose RStudio Server port
+EXPOSE 8787
+
+# Run RStudio Server in foreground
+CMD ["/usr/lib/rstudio-server/bin/rserver", "--server-daemonize=0"]
+
+

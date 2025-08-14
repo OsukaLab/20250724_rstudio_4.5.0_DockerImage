@@ -1,0 +1,4 @@
+FROM lsbarr/20250724_rstudio_4.5.0:1.4.0
+
+# Install key Bioconductor packages
+RUN R -e "BiocManager::install(c('maftools', 'biomaRt', 'TCGAbiolinks', 'DESeq2'), ask = FALSE, update = FALSE)"
