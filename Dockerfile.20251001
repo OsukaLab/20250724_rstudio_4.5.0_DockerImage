@@ -1,0 +1,33 @@
+FROM lsbarr/20250724_rstudio_4.5.0:1.5.0
+
+# Install system libraries
+RUN apt-get update && apt-get install -y \
+    libxml2-dev \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libglpk-dev \
+    libgsl-dev \
+    libhdf5-dev \
+    libudunits2-dev \
+    libprotobuf-dev \
+    protobuf-compiler \
+    libgit2-dev \
+    libfftw3-dev \
+    libpng-dev \
+    libtiff5-dev \
+    libjpeg-dev
+
+# Install required R packages
+RUN R -e "install.packages(c('devtools', 'remotes', 'BiocManager'), repos = 'https://cloud.r-project.org')"
+
+# Install Bioconductor packages
+RUN R -e "BiocManager::install(c('ComplexHeatmap', 'circlize', 'broom.mixed', 'effsize', 'clusterProfiler', 'org.Hs.eg.db', 'enrichplot'))"
+
+# Install monocle3 (GitHub install because Bioconductor install can fail)
+RUN R -e "remotes::install_github('cole-trapnell-lab/monocle3')"
+
+# Install CellChat (also from GitHub)
+RUN R -e "remotes::install_github('sqjin/CellChat')"
+
+# Install NicheNet (complex dependencies)
+RUN R -e "remotes::install_github('saeyslab/nichenetr')"
