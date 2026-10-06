@@ -1,0 +1,68 @@
+FROM lsbarr/20250724_rstudio_4.5.0:1.6.1
+
+# ============================================================
+# Version 1.7.0
+# R 4.5.0 / Bioconductor 3.21
+#
+# Adds:
+#   - Flow cytometry analysis tools used in current workflows
+#   - Xenium / spatial transcriptomics analysis foundation
+#
+# Existing packages are retained from Docker image 1.6.1.
+# ============================================================
+
+
+# ------------------------------------------------------------
+# CRAN packages
+# ------------------------------------------------------------
+
+# Apache Arrow is used for reading Parquet files, including
+# files produced by 10x Genomics Xenium.
+RUN R -e "install.packages(c('arrow'), repos = 'https://cloud.r-project.org')"
+
+
+# ------------------------------------------------------------
+# Bioconductor packages
+# ------------------------------------------------------------
+
+# Flow cytometry:
+#   FlowSOM  - self-organizing map clustering
+#   flowCore - FCS file infrastructure and flow cytometry tools
+#
+# Spatial transcriptomics:
+#   SpatialExperiment   - standardized spatial omics data container
+#   XeniumIO            - import 10x Xenium outputs
+#   SpatialExperimentIO - import imaging-based spatial datasets
+#   Banksy              - spatially aware clustering
+#   nnSVG               - spatially variable gene detection
+#
+# ask = FALSE prevents interactive prompts.
+# update = FALSE prevents upgrading the existing environment.
+
+RUN R -e "BiocManager::install(c( \
+    'FlowSOM', \
+    'flowCore', \
+    'SpatialExperiment', \
+    'XeniumIO', \
+    'SpatialExperimentIO', \
+    'Banksy', \
+    'nnSVG' \
+    ), ask = FALSE, update = FALSE)"
+
+
+# ------------------------------------------------------------
+# Installation check
+# ------------------------------------------------------------
+
+RUN R -e "packages <- c( \
+    'FlowSOM', \
+    'flowCore', \
+    'SpatialExperiment', \
+    'XeniumIO', \
+    'SpatialExperimentIO', \
+    'Banksy', \
+    'nnSVG', \
+    'arrow' \
+    ); \
+    stopifnot(all(vapply(packages, requireNamespace, logical(1), quietly = TRUE))); \
+    cat('All v1.7.0 packages installed successfully.\n')"
